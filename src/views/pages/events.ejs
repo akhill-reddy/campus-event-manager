@@ -1,11 +1,12 @@
-<%- include("../partials/header") %>
+<%- include('../partials/header') %>
 
 <div class="d-flex justify-content-between align-items-center mb-4">
   <h2>Events Catalog</h2>
-  <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createEventModal">+ Create Event</button>
+  <a href="#" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createEventModal">+ Create Event</a>
 </div>
 
-<form method="GET" action="/events" class="row g-2 mb-4">
+<!-- Search and Filter Form -->
+<form action="/events" method="GET" class="row g-3 mb-4">
   <div class="col-md-5">
     <input type="text" name="search" class="form-control" placeholder="Search by title..." value="<%= search %>">
   </div>
@@ -13,7 +14,7 @@
     <select name="category" class="form-select">
       <option value="">All Categories</option>
       <% categories.forEach(cat => { %>
-        <option value="<%= cat %>" <%= selectedCategory === cat ? "selected" : "" %>><%= cat %></option>
+        <option value="<%= cat %>" <%= selectedCategory === cat ? 'selected' : '' %>><%= cat %></option>
       <% }); %>
     </select>
   </div>
@@ -22,81 +23,25 @@
   </div>
 </form>
 
-<div class="row g-4">
-  <% events.forEach(event => { %>
-    <div class="col-md-4">
+<!-- Events Grid -->
+<div class="row row-cols-1 row-cols-md-3 g-4 mb-4">
+  <% events.forEach(evt => { %>
+    <div class="col">
       <div class="card h-100 shadow-sm">
         <div class="card-body">
-          <span class="badge bg-primary mb-2"><%= event.category %></span>
-          <h5 class="card-title"><%= event.title %></h5>
-          <p class="card-text text-muted"><%= event.description ? event.description.substring(0, 80) : "" %>...</p>
-          <p class="small mb-1">?? <%= new Date(event.startDate).toLocaleDateString() %></p>
-          <p class="small mb-1">?? <%= event.location ? event.location.building : "N/A" %>, <%= event.location ? event.location.room : "" %></p>
-          <p class="small mb-3">?? <%= event.registrations ? event.registrations.length : 0 %> / <%= event.capacity %> Registered</p>
-          <a href="/events/<%= event._id %>" class="btn btn-outline-primary btn-sm">View Details</a>
+          <span class="badge bg-primary float-end"><%= evt.category %></span>
+          <h5 class="card-title"><%= evt.title %></h5>
+          <p class="card-text text-muted small"><%= evt.description %></p>
+          <ul class="list-unstyled text-muted small mb-3">
+            <li><strong>Date:</strong> <%= new Date(evt.startDate).toLocaleDateString() %></li>
+            <li><strong>Location:</strong> <%= evt.location.building %>, <%= evt.location.room.includes('Room') ? evt.location.room : 'Room ' + evt.location.room %></li>
+            <li><strong>Capacity:</strong> <%= evt.regCount %> / <%= evt.capacity %> Registered</li>
+          </ul>
+          <a href="/events/<%= evt._id %>" class="btn btn-sm btn-outline-primary">View Details</a>
         </div>
       </div>
     </div>
   <% }); %>
 </div>
 
-<div class="modal fade" id="createEventModal" tabindex="-1">
-  <div class="modal-dialog modal-lg">
-    <div class="modal-content">
-      <form action="/events/create" method="POST">
-        <div class="modal-header">
-          <h5 class="modal-title">Create New Event</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-        </div>
-        <div class="modal-body row g-3">
-          <div class="col-md-6">
-            <label class="form-label">Title</label>
-            <input type="text" name="title" class="form-control" required>
-          </div>
-          <div class="col-md-6">
-            <label class="form-label">Category</label>
-            <input type="text" name="category" class="form-control" placeholder="Workshop, Talk..." required>
-          </div>
-          <div class="col-md-12">
-            <label class="form-label">Description</label>
-            <textarea name="description" class="form-control" rows="2" required></textarea>
-          </div>
-          <div class="col-md-6">
-            <label class="form-label">Start Date</label>
-            <input type="datetime-local" name="startDate" class="form-control" required>
-          </div>
-          <div class="col-md-6">
-            <label class="form-label">End Date</label>
-            <input type="datetime-local" name="endDate" class="form-control" required>
-          </div>
-          <div class="col-md-4">
-            <label class="form-label">Capacity</label>
-            <input type="number" name="capacity" class="form-control" required>
-          </div>
-          <div class="col-md-4">
-            <label class="form-label">Building</label>
-            <input type="text" name="building" class="form-control" required>
-          </div>
-          <div class="col-md-4">
-            <label class="form-label">Room</label>
-            <input type="text" name="room" class="form-control" required>
-          </div>
-          <div class="col-md-6">
-            <label class="form-label">Campus</label>
-            <input type="text" name="campus" class="form-control" value="Main Campus" required>
-          </div>
-          <div class="col-md-6">
-            <label class="form-label">Tags (comma separated)</label>
-            <input type="text" name="tags" class="form-control" placeholder="AI, Cloud, Java">
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-          <button type="submit" class="btn btn-primary">Save Event</button>
-        </div>
-      </form>
-    </div>
-  </div>
-</div>
-
-<%- include("../partials/footer") %>
+<%- include('../partials/footer') %>

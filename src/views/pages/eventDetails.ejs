@@ -1,38 +1,92 @@
-<%- include("../partials/header") %>
+<%- include('../partials/header') %>
 
-<div class="card mb-4 shadow-sm">
+<div class="card shadow-sm mb-4">
   <div class="card-body">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-      <h2><%= event.title %></h2>
-      <span class="badge bg-primary fs-6"><%= event.category %></span>
-    </div>
+    <span class="badge bg-primary float-end"><%= event.category %></span>
+    <h2 class="card-title mb-3"><%= event.title %></h2>
     <p class="lead"><%= event.description %></p>
     <hr>
-    <div class="row">
+    <div class="row g-3">
       <div class="col-md-6">
         <p><strong>Start:</strong> <%= new Date(event.startDate).toLocaleString() %></p>
         <p><strong>End:</strong> <%= new Date(event.endDate).toLocaleString() %></p>
         <p><strong>Capacity:</strong> <%= event.capacity %></p>
       </div>
       <div class="col-md-6">
-        <p><strong>Location:</strong> <%= event.location ? event.location.building : "N/A" %>, <%= event.location ? event.location.room : "" %> (<%= event.location ? event.location.campus : "" %>)</p>
+        <p><strong>Location:</strong> <%= event.location.building %>, <%= event.location.room.includes('Room') ? event.location.room : 'Room ' + event.location.room %><%= event.location.city ? ' (' + event.location.city + ')' : '' %></p>
         <p><strong>Tags:</strong> 
-          <% if (event.tags) { %>
-            <% event.tags.forEach(tag => { %>
-              <span class="badge bg-light text-dark border"><%= tag %></span>
-            <% }); %>
-          <% } %>
+          <% event.tags.forEach(tag => { %>
+            <span class="badge bg-secondary"><%= tag %></span>
+          <% }); %>
         </p>
       </div>
-    </div>
-    <hr>
-    <div class="d-flex justify-content-between">
-      <a href="/events" class="btn btn-secondary">Back to Events</a>
-      <form action="/events/<%= event._id %>/delete" method="POST">
-        <button type="submit" class="btn btn-danger">Delete Event</button>
-      </form>
     </div>
   </div>
 </div>
 
-<%- include("../partials/footer") %>
+<!-- Registration Section -->
+<div class="card shadow-sm mb-4">
+  <div class="card-header bg-light">
+    <h4 class="mb-0">Register Participant</h4>
+  </div>
+  <div class="card-body">
+    <form action="/events/<%= event._id %>/register" method="POST" class="row g-3 align-items-center">
+      <div class="col-md-8">
+        <select name="userId" class="form-select" required>
+          <option value="">Select User...</option>
+          <% users.forEach(u => { %>
+            <option value="<%= u._id %>"><%= u.firstName %> <%= u.lastName %> (<%= u.email %>)</option>
+          <% }); %>
+        </select>
+      </div>
+      <div class="col-md-4">
+        <button type="submit" class="btn btn-success w-100">Register User</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Attendees List -->
+<div class="card shadow-sm mb-4">
+  <div class="card-header bg-light">
+    <h4 class="mb-0">Registered Attendees (<%= event.registrations ? event.registrations.length : 0 %>)</h4>
+  </div>
+  <div class="card-body p-0">
+    <table class="table table-striped mb-0">
+      <thead>
+        <tr>
+          <th>User ID</th>
+          <th>Registered Date</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (event.registrations && event.registrations.length > 0) { %>
+          <% event.registrations.forEach(reg => { %>
+            <tr>
+              <td><%= reg.userId %></td>
+              <td><%= new Date(reg.registeredAt).toLocaleDateString() %></td>
+              <td>
+                <form action="/events/<%= event._id %>/cancel" method="POST" class="d-inline">
+                  <input type="hidden" name="userId" value="<%= reg.userId %>">
+                  <button type="submit" class="btn btn-sm btn-outline-danger">Cancel</button>
+                </form>
+              </td>
+            </tr>
+          <% }); %>
+        <% } else { %>
+          <tr><td colspan="3" class="text-center text-muted py-3">No registrations yet.</td></tr>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="d-flex justify-content-between">
+  <a href="/events" class="btn btn-secondary">Back to Events</a>
+  <form action="/events/<%= event._id %>/delete" method="POST">
+    <button type="submit" class="btn btn-danger">Delete Event</button>
+  </form>
+</div>
+
+<%- include('../partials/footer') %>
