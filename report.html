@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+    @page { size: A4; margin: 20mm; }
+    body { font-family: Arial, sans-serif; font-size: 10pt; color: #1f2937; line-height: 1.5; }
+    h1 { color: #1e3a8a; font-size: 18pt; margin-bottom: 4px; }
+    h2 { color: #1e3a8a; font-size: 12pt; border-bottom: 1px solid #cbd5e1; padding-bottom: 4px; margin-top: 20px; }
+    table { width: 100%; border-collapse: collapse; margin: 10px 0; }
+    td, th { border: 1px solid #cbd5e1; padding: 6px 10px; font-size: 9pt; }
+    th { background: #f1f5f9; text-align: left; }
+    .code { background: #1e293b; color: #f8fafc; padding: 10px; font-family: monospace; font-size: 8.5pt; border-radius: 4px; white-space: pre-wrap; }
+    .fig { margin: 15px 0; text-align: center; }
+    .fig img { width: 100%; border: 1px solid #cbd5e1; border-radius: 4px; }
+    .cap { font-size: 8.5pt; color: #4b5563; font-style: italic; margin-top: 4px; }
+</style>
+</head>
+<body>
+    <h1>Campus Event Management System</h1>
+    <p><b>Technical Implementation Report</b></p>
+    
+    <table>
+        <tr><td><b>Student Name:</b></td><td>Chamakura Akhil Reddy</td><td><b>Date:</b></td><td>September 12, 2026</td></tr>
+        <tr><td><b>Repository:</b></td><td colspan="3">https://github.com/akhill-reddy/campus-event-manager</td></tr>
+    </table>
+
+    <h2>1. Executive Summary & Architecture Overview</h2>
+    <p>The Campus Event Manager is a full-stack web application designed to handle campus event scheduling, user registrations, and MongoDB data aggregations.</p>
+    
+    <table>
+        <tr><th>Layer</th><th>Technology</th><th>Implementation Details</th></tr>
+        <tr><td>Backend Runtime</td><td>Node.js & Express.js</td><td>RESTful API routes, EJS page rendering, middleware processing.</td></tr>
+        <tr><td>Database Layer</td><td>MongoDB Atlas (Mongoose ODM)</td><td>Document-based persistence store for users and embedded registrations.</td></tr>
+        <tr><td>Front-End Layer</td><td>EJS & Bootstrap 5</td><td>Server-rendered templates with responsive user interface controls.</td></tr>
+        <tr><td>Data Pipelines</td><td>MongoDB Aggregations</td><td>Multi-stage pipelines ($unwind, $group, $lookup, $project).</td></tr>
+    </table>
+
+    <h2>2. System Interfaces & Screenshots</h2>
+    
+    <h3>2.1 Main Dashboard</h3>
+    <div class="fig"><img src="Screenshot 2026-09-10 042934.png"><div class="cap">Figure 1: Main Dashboard showing metrics, upcoming events, and popular event highlight.</div></div>
+
+    <h3>2.2 Events Catalog</h3>
+    <div class="fig"><img src="Screenshot 2026-09-10 044454.png"><div class="cap">Figure 2: Events Catalog showing venue details (Building C, Room 117) and search filters.</div></div>
+
+    <h3>2.3 Event Details & Attendees</h3>
+    <div class="fig"><img src="Screenshot 2026-09-10 044447.png"><div class="cap">Figure 3: Event Details page showing dynamic registration form and active attendee table.</div></div>
+
+    <h3>2.4 User Directory</h3>
+    <div class="fig"><img src="Screenshot 2026-09-10 042956.png"><div class="cap">Figure 4: User Directory table with roles, departments, and event counters.</div></div>
+
+    <h2>3. Aggregations & Advanced Analytics</h2>
+    <div class="fig"><img src="Screenshot 2026-09-10 043005.png"><div class="cap">Figure 5: MongoDB Analytics Dashboard rendering aggregation pipeline outputs.</div></div>
+
+    <h3>3.1 Pipeline Specifications</h3>
+    <p><b>Analysis A: Total Registrations by Category</b></p>
+    <div class="code">db.events.aggregate([
+  { $unwind: "$registrations" },
+  { $group: { _id: "$category", totalEvents: { $addToSet: "$_id" }, confirmedRegistrations: { $sum: 1 } } },
+  { $project: { category: "$_id", eventsCount: { $size: "$totalEvents" }, confirmedRegistrations: 1 } },
+  { $sort: { confirmedRegistrations: -1 } }
+]);</div>
+
+    <p><b>Analysis B: Top 5 Popular Events by Occupancy Rate</b></p>
+    <div class="code">db.events.aggregate([
+  { $project: { title: 1, category: 1, capacity: 1, registrationsCount: { $size: { $ifNull: ["$registrations", []] } }, occupancyRate: { $multiply: [ { $divide: [ { $size: { $ifNull: ["$registrations", []] } }, "$capacity" ] }, 100 ] } } },
+  { $sort: { occupancyRate: -1 } },
+  { $limit: 5 }
+]);</div>
+
+    <p><b>Analysis C: Inactive Users (Zero Registrations)</b></p>
+    <div class="code">db.users.aggregate([
+  { $lookup: { from: "events", localField: "_id", foreignField: "registrations.userId", as: "userEvents" } },
+  { $match: { userEvents: { $size: 0 } } },
+  { $project: { firstName: 1, lastName: 1, email: 1, role: 1 } }
+]);</div>
+
+    <h2>4. Submission Details</h2>
+    <p><b>Author:</b> Chamakura Akhil Reddy<br><b>Repository:</b> https://github.com/akhill-reddy/campus-event-manager</p>
+</body>
+</html>

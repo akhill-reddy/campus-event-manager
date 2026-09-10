@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+    @page { size: letter; margin: 15mm; }
+    body { font-family: Arial, Helvetica, sans-serif; font-size: 9pt; color: #1e293b; line-height: 1.4; }
+    .header { border-bottom: 2px solid #0f172a; padding-bottom: 6px; margin-bottom: 12px; }
+    .title { font-size: 16pt; font-weight: bold; color: #0f172a; }
+    .subtitle { font-size: 10pt; color: #475569; }
+    .meta-box { background: #f8fafc; border: 1px solid #cbd5e1; padding: 8px 12px; margin-bottom: 15px; border-radius: 4px; }
+    .meta-table { width: 100%; border-collapse: collapse; font-size: 8.5pt; }
+    .meta-table td { padding: 3px 0; }
+    h2 { font-size: 11pt; font-weight: bold; color: #0f172a; border-bottom: 1px solid #cbd5e1; padding-bottom: 3px; margin-top: 16px; text-transform: uppercase; }
+    h3 { font-size: 9.5pt; font-weight: bold; color: #334155; margin-top: 10px; margin-bottom: 4px; }
+    .fig-box { text-align: center; margin: 10px 0 14px 0; page-break-inside: avoid; }
+    .fig-box img { width: 100%; max-width: 100%; border: 1px solid #cbd5e1; border-radius: 4px; }
+    .caption { font-size: 8pt; color: #475569; font-style: italic; margin-top: 3px; }
+    .code-block { background-color: #f1f5f9; border-left: 3px solid #0f172a; padding: 8px; font-family: monospace; font-size: 8pt; white-space: pre-wrap; word-break: break-all; margin: 6px 0; }
+    table.data-table { width: 100%; border-collapse: collapse; margin: 8px 0; font-size: 8.5pt; }
+    table.data-table th { background: #0f172a; color: white; padding: 5px 8px; text-align: left; }
+    table.data-table td { border: 1px solid #e2e8f0; padding: 5px 8px; }
+</style>
+</head>
+<body>
+    <div class="header">
+        <div class="title">Campus Event Management System</div>
+        <div class="subtitle">Technical Architecture & Database Aggregation Report</div>
+    </div>
+
+    <div class="meta-box">
+        <table class="meta-table">
+            <tr><td><b>Student Author:</b> Chamakura Akhil Reddy</td><td><b>Date:</b> September 10, 2026</td></tr>
+            <tr><td colspan="2"><b>Repository:</b> https://github.com/akhill-reddy/campus-event-manager</td></tr>
+            <tr><td colspan="2"><b>Stack:</b> Node.js, Express.js, MongoDB Atlas, EJS, Bootstrap 5</td></tr>
+        </table>
+    </div>
+
+    <h2>1. Executive Summary & Architecture</h2>
+    <p>The Campus Event Manager platform provides administrative tracking and multi-tier event management across academic departments.</p>
+    
+    <table class="data-table">
+        <tr><th>Layer</th><th>Technology</th><th>Implementation Details</th></tr>
+        <tr><td>Backend Runtime</td><td>Node.js / Express.js</td><td>Handles REST routes, middleware processing, and dynamic EJS rendering.</td></tr>
+        <tr><td>Database Layer</td><td>MongoDB Atlas</td><td>Document persistence store for user profiles and event entities.</td></tr>
+        <tr><td>Frontend View</td><td>EJS & Bootstrap 5</td><td>Server-rendered templates with responsive user interface layout.</td></tr>
+    </table>
+
+    <h2>2. System Interfaces & Real Outputs</h2>
+
+    <h3>2.1 Main Dashboard View</h3>
+    <div class="fig-box">
+        <img src="">
+        <div class="caption">Figure 1: Main Platform Dashboard showing system metric counters and upcoming event feed.</div>
+    </div>
+
+    <h3>2.2 Events Directory View</h3>
+    <div class="fig-box">
+        <img src="">
+        <div class="caption">Figure 2: Events Catalog displaying category filters and event cards.</div>
+    </div>
+
+    <h3>2.3 Event Details & Registration Interface</h3>
+    <div class="fig-box">
+        <img src="">
+        <div class="caption">Figure 3: Event Detail View displaying participant registration controls and attendee list.</div>
+    </div>
+
+    <h3>2.4 User Directory Interface</h3>
+    <div class="fig-box">
+        <img src="">
+        <div class="caption">Figure 4: User Directory table displaying roles, departments, and registration counts.</div>
+    </div>
+
+    <h2>3. MongoDB Aggregations & Analytics</h2>
+
+    <h3>3.1 Analytics Dashboard View</h3>
+    <div class="fig-box">
+        <img src="">
+        <div class="caption">Figure 5: Analytics UI showing operational data aggregations.</div>
+    </div>
+
+    <p><b>Analysis A: Total Registrations by Category</b></p>
+    <div class="code-block">
+db.events.aggregate([
+  { $unwind: "$registrations" },
+  { $group: { _id: "$category", totalEvents: { $addToSet: "$_id" }, confirmedRegistrations: { $sum: 1 } } },
+  { $project: { category: "$_id", eventsCount: { $size: "$totalEvents" }, confirmedRegistrations: 1, _id: 0 } },
+  { $sort: { confirmedRegistrations: -1 } }
+]);
+    </div>
+
+    <p><b>Analysis B: Top 5 Events by Occupancy Rate</b></p>
+    <div class="code-block">
+db.events.aggregate([
+  { $project: { title: 1, category: 1, capacity: 1, registrationsCount: { $size: { $ifNull: ["$registrations", []] } }, occupancyRate: { $multiply: [ { $divide: [ { $size: { $ifNull: ["$registrations", []] } }, "$capacity" ] }, 100 ] } } },
+  { $sort: { occupancyRate: -1 } },
+  { $limit: 5 }
+]);
+    </div>
+
+    <p><b>Analysis C: Inactive Users Query</b></p>
+    <div class="code-block">
+db.users.aggregate([
+  { $lookup: { from: "events", localField: "_id", foreignField: "registrations.userId", as: "userEvents" } },
+  { $match: { userEvents: { $size: 0 } } },
+  { $project: { firstName: 1, lastName: 1, email: 1, role: 1 } }
+]);
+    </div>
+
+    <h2>4. Deliverable Verification</h2>
+    <p>Submitted by <b>Chamakura Akhil Reddy</b> for official project submission.</p>
+</body>
+</html>
