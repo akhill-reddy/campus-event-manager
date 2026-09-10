@@ -1,0 +1,62 @@
+<%- include('../partials/header') %>
+
+<div class="card shadow-sm mb-4">
+  <div class="card-body">
+    <h2 class="card-title mb-1"><%= user.firstName %> <%= user.lastName %></h2>
+    <p class="text-muted mb-3"><%= user.email %> | <span class="badge bg-info text-dark"><%= user.role %></span></p>
+    <p><strong>Department:</strong> <%= user.department %></p>
+    <p><strong>Interests:</strong> 
+      <% if (user.interests) { %>
+        <% user.interests.forEach(i => { %>
+          <span class="badge bg-light text-dark border"><%= i %></span>
+        <% }); %>
+      <% } %>
+    </p>
+  </div>
+</div>
+
+<div class="row g-3 mb-4">
+  <div class="col-md-6">
+    <div class="card bg-success text-white p-3 text-center">
+      <h4>Upcoming Registrations</h4>
+      <h2><%= upcomingCount %></h2>
+    </div>
+  </div>
+  <div class="col-md-6">
+    <div class="card bg-secondary text-white p-3 text-center">
+      <h4>Past Registrations</h4>
+      <h2><%= pastCount %></h2>
+    </div>
+  </div>
+</div>
+
+<h3 class="mb-3">Event Participation History</h3>
+<div class="table-responsive bg-white rounded shadow-sm p-3">
+  <table class="table align-middle">
+    <thead>
+      <tr>
+        <th>Event Title</th>
+        <th>Category</th>
+        <th>Date</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% events.forEach(evt => { %>
+        <tr>
+          <td><%= evt.title %></td>
+          <td><span class="badge bg-primary"><%= evt.category %></span></td>
+          <td><%= new Date(evt.startDate).toLocaleDateString() %></td>
+          <td><a href="/events/<%= evt._id %>" class="btn btn-sm btn-outline-primary">View Event</a></td>
+        </tr>
+      <% }); %>
+      <% if (events.length === 0) { %>
+        <tr><td colspan="4" class="text-muted">No event registrations found.</td></tr>
+      <% } %>
+    </tbody>
+  </table>
+</div>
+
+<a href="/users" class="btn btn-secondary mt-3">Back to Directory</a>
+
+<%- include('../partials/footer') %> 

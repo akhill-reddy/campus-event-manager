@@ -1,0 +1,72 @@
+﻿<%- include('../partials/header') %>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h2>User Directory</h2>
+</div>
+
+<!-- Search and Filter Controls -->
+<form action="/users" method="GET" class="row g-3 mb-4">
+  <div class="col-md-4">
+    <input type="text" name="search" class="form-control" placeholder="Search by name or email..." value="<%= search %>">
+  </div>
+  <div class="col-md-3">
+    <select name="role" class="form-select">
+      <option value="">All Roles</option>
+      <% roles.forEach(r => { %>
+        <option value="<%= r %>" <%= selectedRole === r ? 'selected' : '' %>><%= r %></option>
+      <% }); %>
+    </select>
+  </div>
+  <div class="col-md-3">
+    <select name="department" class="form-select">
+      <option value="">All Departments</option>
+      <% departments.forEach(d => { %>
+        <option value="<%= d %>" <%= selectedDept === d ? 'selected' : '' %>><%= d %></option>
+      <% }); %>
+    </select>
+  </div>
+  <div class="col-md-2">
+    <button type="submit" class="btn btn-primary w-100">Filter</button>
+  </div>
+</form>
+
+<!-- Users Table -->
+<div class="table-responsive bg-white rounded shadow-sm p-3">
+  <table class="table table-hover align-middle">
+    <thead class="table-dark">
+      <tr>
+        <th>Full Name</th>
+        <th>Email</th>
+        <th>Role</th>
+        <th>Department</th>
+        <th>Registrations</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% users.forEach(user => { %>
+        <tr>
+          <td>
+            <a href="/users/<%= user._id %>" class="fw-bold text-decoration-none text-primary">
+              <%= user.firstName %> <%= user.lastName %>
+            </a>
+          </td>
+          <td><%= user.email %></td>
+          <td><span class="badge bg-info text-dark"><%= user.role %></span></td>
+          <td><%= user.department %></td>
+          <td><span class="badge bg-secondary"><%= user.regCount %> events</span></td>
+          <td>
+            <a href="/users/<%= user._id %>" class="btn btn-sm btn-outline-primary">View History</a>
+          </td>
+        </tr>
+      <% }); %>
+      <% if (users.length === 0) { %>
+        <tr>
+          <td colspan="6" class="text-center text-muted py-4">No users found matching the search criteria.</td>
+        </tr>
+      <% } %>
+    </tbody>
+  </table>
+</div>
+
+<%- include('../partials/footer') %>

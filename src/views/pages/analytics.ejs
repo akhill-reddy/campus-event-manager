@@ -1,0 +1,170 @@
+﻿<%- include('../partials/header') %>
+
+<h2 class="mb-4">MongoDB Aggregations & Analytics</h2>
+
+<div class="row g-4 mb-4">
+  <!-- Analysis A: Category Stats -->
+  <div class="col-md-6">
+    <div class="card shadow-sm h-100">
+      <div class="card-header bg-dark text-white fw-bold">Analysis A: Registrations by Category</div>
+      <div class="card-body p-0">
+        <table class="table mb-0">
+          <thead>
+            <tr>
+              <th>Category</th>
+              <th>Events Count</th>
+              <th>Confirmed Regs</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% categoryStats.forEach(stat => { %>
+              <tr>
+                <td><span class="badge bg-primary"><%= stat._id %></span></td>
+                <td><%= stat.eventCount %></td>
+                <td><strong><%= stat.totalRegs %></strong></td>
+              </tr>
+            <% }); %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Analysis C: Users with No Registrations -->
+  <div class="col-md-6">
+    <div class="card shadow-sm h-100">
+      <div class="card-header bg-dark text-white fw-bold">Analysis C: Users With No Registrations</div>
+      <div class="card-body p-0">
+        <table class="table mb-0">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Role</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% unregisteredUsers.forEach(u => { %>
+              <tr>
+                <td><%= u.firstName %> <%= u.lastName %></td>
+                <td><%= u.email %></td>
+                <td><span class="badge bg-info text-dark"><%= u.role %></span></td>
+              </tr>
+            <% }); %>
+            <% if (unregisteredUsers.length === 0) { %>
+              <tr><td colspan="3" class="text-muted p-3">All users are registered for at least one event.</td></tr>
+            <% } %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Analysis B: Top 5 Popular Events -->
+<div class="card shadow-sm mb-4">
+  <div class="card-header bg-success text-white fw-bold">Analysis B: Top 5 Most Popular Events</div>
+  <div class="card-body p-0">
+    <table class="table table-hover mb-0">
+      <thead>
+        <tr>
+          <th>Event Title</th>
+          <th>Category</th>
+          <th>Capacity</th>
+          <th>Registrations</th>
+          <th>Occupancy</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% topEvents.forEach(evt => { %>
+          <tr>
+            <td><%= evt.title %></td>
+            <td><span class="badge bg-secondary"><%= evt.category %></span></td>
+            <td><%= evt.capacity %></td>
+            <td class="fw-bold text-success"><%= evt.regCount %></td>
+            <td><%= Math.round(evt.occupancy) %>%</td>
+          </tr>
+        <% }); %>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="row g-4 mb-4">
+  <!-- Analysis D: Above Average Occupancy -->
+  <div class="col-md-6">
+    <div class="card shadow-sm h-100">
+      <div class="card-header bg-warning text-dark fw-bold">Analysis D: Above Average Occupancy Events</div>
+      <div class="card-body p-0">
+        <table class="table mb-0">
+          <thead>
+            <tr>
+              <th>Event Title</th>
+              <th>Occupancy Rate</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% eventsAboveAvg.forEach(evt => { %>
+              <tr>
+                <td><%= evt.title %></td>
+                <td><span class="badge bg-warning text-dark"><%= Math.round(evt.occupancy) %>%</span></td>
+              </tr>
+            <% }); %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Analysis E: Most Used Tags -->
+  <div class="col-md-6">
+    <div class="card shadow-sm h-100">
+      <div class="card-header bg-info text-dark fw-bold">Analysis E: Most Used Tags</div>
+      <div class="card-body p-0">
+        <table class="table mb-0">
+          <thead>
+            <tr>
+              <th>Tag</th>
+              <th>Used Count</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% tagStats.forEach(tag => { %>
+              <tr>
+                <td><span class="badge bg-light text-dark border"><%= tag._id %></span></td>
+                <td><strong><%= tag.count %></strong></td>
+              </tr>
+            <% }); %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Analysis F: Events by Month -->
+<div class="card shadow-sm">
+  <div class="card-header bg-primary text-white fw-bold">Analysis F: Events & Registrations by Month</div>
+  <div class="card-body p-0">
+    <table class="table mb-0">
+      <thead>
+        <tr>
+          <th>Month Number</th>
+          <th>Total Events</th>
+          <th>Total Registrations</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% monthlyStats.forEach(m => { %>
+          <tr>
+            <td>Month <%= m._id %></td>
+            <td><%= m.totalEvents %></td>
+            <td><strong><%= m.totalRegs %></strong></td>
+          </tr>
+        <% }); %>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<%- include('../partials/footer') %> 
